@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CADRA — Analysis Result</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:18px auto;padding:10px}
+    .box{border:1px solid #ddd;padding:12px;border-radius:6px;margin-bottom:12px}
+    .high{color:#b30000} .med{color:#b36b00} .low{color:#1a7300}
+    pre{white-space:pre-wrap;word-wrap:break-word}
+  </style>
+</head>
+<body>
+  <a href="/">← Back</a>
+  <h2>Analysis Result</h2>
+  <div class="box">
+    <p>Risk Score: <strong>{{ report.score }}</strong> — Risk Level:
+       <span class="{{ 'high' if report.risk_level=='High' else 'med' if report.risk_level=='Medium' else 'low' }}">{{ report.risk_level }}</span></p>
+    <p><strong>Evidence:</strong></p>
+    <ul>
+      {% for e in report.evidence %}
+        <li>{{ e }}</li>
+      {% endfor %}
+      {% if report.evidence|length == 0 %}
+        <li>No immediate deterministic issues found.</li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <div class="box">
+    <h3>Sensitive Items Detected</h3>
+    <ul>
+      <li>Emails: {{ report.sensitive.emails|length }}</li>
+      <li>Phones: {{ report.sensitive.phones|length }}</li>
+      <li>URLs: {{ report.sensitive.urls|length }}</li>
+      <li>Aadhar-like: {{ report.sensitive.aadhar_like|length }}</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h3>Tone & Toxicity (heuristic)</h3>
+    <p>Tone score (0 worst — 100 neutral/good): <strong>{{ report.tone.tone_score }}</strong></p>
+    <p>Toxic words: {{ report.tone.toxic_hits }}</p>
+    <p>Suspicious phrases: {{ report.tone.suspicious_hits }}</p>
+  </div>
+
+  <div class="box">
+    <h3>Structure & Clarity</h3>
+    <ul>
+      <li>Sentences: {{ report.structure.num_sentences }}</li>
+      <li>Words: {{ report.structure.num_words }}</li>
+      <li>Avg sentence length (words): {{ report.structure.avg_sentence_len }}</li>
+      <li>Long sentences flagged: {{ report.structure.long_sentences_count }}</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h3>LLM Analysis / Suggestions</h3>
+    {% if report.llm %}
+      {% if report.llm.raw %}
+        <pre>{{ report.llm.raw }}</pre>
+      {% else %}
+        <p><strong>Summary:</strong> {{ report.llm.get('summary','-') }}</p>
+        <p><strong>Issues:</strong></p>
+        <ul>{% for it in report.llm.get('issues',[]) %}<li>{{ it }}</li>{% endfor %}</ul>
+        <p><strong>Rewrite Suggestions:</strong></p>
+        <ul>{% for it in report.llm.get('rewrite_suggestions',[]) %}<li>{{ it }}</li>{% endfor %}</ul>
+        <p><strong>Advice:</strong></p>
+        <ul>{% for it in report.llm.get('advice',[]) %}<li>{{ it }}</li>{% endfor %}</ul>
+      {% endif %}
+    {% else %}
+      <p>No LLM analysis available (no API). Fallback heuristics applied.</p>
+    {% endif %}
+  </div>
+
+  <div class="box">
+    <h3>Original Document</h3>
+    <pre>{{ text }}</pre>
+  </div>
+</body>
+</html>
