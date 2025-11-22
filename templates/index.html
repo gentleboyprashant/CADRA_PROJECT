@@ -1,24 +1,94 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>CADRA - Document Risk Analyzer (Demo)</title>
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:20px auto;padding:10px}
-    textarea{width:100%;height:300px;padding:8px;font-size:14px}
-    button{padding:8px 12px;margin-top:8px}
-    .note{color:#555;font-size:0.95em}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADRA — Document Analyzer</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: #f5f7fa;
+        }
+        .container-box {
+            background: #fff;
+            padding: 28px;
+            margin-top: 40px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+        .title {
+            font-size: 30px;
+            font-weight: 650;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        textarea {
+            height: 270px;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #b5cdfa;
+            background: #eef4ff;
+        }
+        .badge-pill {
+            padding: 8px 12px;
+            border-radius: 25px;
+        }
+    </style>
 </head>
+
 <body>
-  <h2>CADRA — Context-Aware Document Risk Analyzer (Demo)</h2>
-  <p class="note">Paste your document text here (no passwords). This demo runs local heuristics; set OPENAI_API_KEY in environment for LLM-enhanced analysis.</p>
-  <form method="post" action="/analyze">
-    <textarea name="doc_text" placeholder="Paste document, email, resume, or message..."></textarea>
-    <br>
-    <button type="submit">Analyze Document</button>
-  </form>
-  <hr>
-  <p>Example: paste "Contact: prashant@example.com. Please send money to account 123456789. You are stupid!"</p>
+<div class="container">
+    <div class="container-box">
+        <div class="title">CADRA — Context-Aware Document Risk Analyzer</div>
+
+        <form method="POST">
+            <label class="form-label fw-bold">Paste your document text:</label>
+            <textarea class="form-control" name="document_text" placeholder="Paste text here..." required></textarea>
+
+            <button class="btn btn-primary w-100 mt-3">Analyze Document</button>
+        </form>
+
+        {% if report %}
+
+        <div class="result-box mt-4">
+            <h4 class="fw-bold mb-3">Analysis Result</h4>
+
+            <p><strong>Risk Score:</strong>
+                <span class="badge bg-danger badge-pill">{{ report.score }}</span>
+            </p>
+
+            <hr>
+
+            <h5 class="fw-bold">Detected Issues:</h5>
+            <ul>
+                {% for item in report.issues %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+
+            {% if report.llm_summary %}
+                <hr>
+                <h5><strong>LLM Summary:</strong></h5>
+                <p>{{ report.llm_summary }}</p>
+
+                <h5><strong>LLM Suggestions:</strong></h5>
+                <ul>
+                {% for s in report.llm_suggestions %}
+                    <li>{{ s }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+
 </body>
 </html>
